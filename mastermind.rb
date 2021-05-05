@@ -3,7 +3,34 @@
 class Display
   def rules
   end
-  def board_state
+  def board_state(pos, num, guess)
+    guess.each do |i|
+      case i
+      when 1
+        print "\e[41m #{i} \e[0m"
+      when 2
+        print "\e[42m #{i} \e[0m"
+      when 3
+        print "\e[43m #{i} \e[0m"
+      when 4
+        print "\e[44m #{i} \e[0m"
+      when 5
+        print "\e[45m #{i} \e[0m"
+      when 6
+        print "\e[46m #{i} \e[0m"
+      end
+    end
+    print " "
+    pos.each do |i|
+      if i == 1
+        print "\u2022"
+      end
+    end
+    num.each do |i|
+      if i == 1
+        print "\u25E6"
+      end
+    end
   end
 end
 
@@ -14,9 +41,9 @@ class AI
 end
 
 class State
+  @secret = []
   def initialize(maker)
     @maker = maker
-    @secret = []
   end
   def new_code
     unless @maker == "1"
@@ -46,25 +73,32 @@ class State
   def guess_check(guess)
     unless guess == @secret
       j = 0
-      position[4] = []
+      cor_pos = []
+      cor_num = []
       guess.each do |i|
         if i == @secret[j]
-          position[j] = 1
+          cor_pos[j] = 1
+        else
+          for k in (0..3)
+            if @secret[k] == i && cor_pos[k] == nil && k != j
+              cor_num[j] = 1
+            end
+          end
         end
         j += 1
       end
-      j = 0
-      position.each do |i|
-        if i == 0
-          
-        end
+      Display.new.board_state(cor_pos, cor_num, guess)
+    else
+      puts "You Win!\nWould you like to play again? y/n"
+      response = gets
+      unless response = "y"
+        exit 
       end
     end
   end
 end
 
 def game_start
-  display_object = Display.new
   begin
     choice = gets
     unless ("1".."2") === choice; raise; end
@@ -74,9 +108,10 @@ def game_start
     retry
   end
   current_game.new_code
-  current_game.make_guess
+  current_game.guess_check([1,2,3,4])
+  #current_game.make_guess
 end
 
+Display.new.rules
 game_start
-
 
