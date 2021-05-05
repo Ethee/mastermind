@@ -17,7 +17,7 @@ class Display
       when 5
         print "\e[45m #{i} \e[0m"
       when 6
-        print "\e[46m #{i} \e[0m"
+        print "\e[47m #{i} \e[0m"
       end
     end
     print " "
@@ -31,6 +31,7 @@ class Display
         print "\u25E6"
       end
     end
+    print "\n"
   end
 end
 
@@ -90,9 +91,11 @@ class State
       Display.new.board_state(cor_pos, cor_num, guess)
     else
       puts "You Win!\nWould you like to play again? y/n"
-      response = gets
-      unless response = "y"
-        exit 
+      response = gets.chomp
+      unless response == "y"
+        exit
+      else
+        game_start
       end
     end
   end
@@ -108,8 +111,9 @@ def game_start
     retry
   end
   current_game.new_code
-  current_game.guess_check([1,2,3,4])
-  #current_game.make_guess
+  while true do
+    current_game.make_guess
+  end
 end
 
 Display.new.rules
