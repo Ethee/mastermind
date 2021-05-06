@@ -3,7 +3,7 @@
 class Display
   def rules
   end
-  def board_state(pos, num, guess)
+  def board_state(guess, pos = nil, num = nil)
     guess.each do |i|
       case i
       when 1
@@ -39,20 +39,25 @@ class AI
   def generate_code
     return arr = [ rand(6)+1, rand(6)+1, rand(6)+1, rand(6)+1 ]
   end
+  def guess
+  end
 end
 
 class State
-  @secret = []
   def initialize(maker)
+    @secret = []
     @maker = maker
   end
   def new_code
     unless @maker == "1"
       @secret = AI.new.generate_code
+    else
+      print @maker
+      puts "Enter a secret code of 4 numbers ranging from 1-6"
+      @secret = code_input
     end
   end
-  def make_guess
-    puts "Guess 4 numbers ranging from 1-6:"
+  def code_input
     begin
       input = gets
       input = input.strip
@@ -65,14 +70,13 @@ class State
         guess[j] = i
         j += 1
       end
-      guess_check(guess)
+      return guess
     rescue
       puts "Unknown response. Please enter 4 numbers ranging from 1-6:"
       retry
     end
   end
   def guess_check(guess)
-    unless guess == @secret
       j = 0
       cor_pos = []
       cor_num = []
@@ -88,22 +92,37 @@ class State
         end
         j += 1
       end
-      Display.new.board_state(cor_pos, cor_num, guess)
-    else
-      puts "You Win!\nWould you like to play again? y/n"
-      response = gets.chomp
-      unless response == "y"
-        exit
-      else
-        game_start
+      Display.new.board_state(guess, cor_pos, cor_num)
+  end
+  def driver
+    unless @maker == "1"
+      12.times do
+        puts "Guess 4 numbers ranging from 1-6:"
+        guess = code_input
+        unless guess == @secret
+          guess_check(guess)
+        else
+          puts "You Win!\nWould you like to play again? y/n"
+          response = gets.chomp
+          unless response == "y"
+            exit
+          else
+            game_start
+          end
+        end
       end
+      Display.new.board_state(@secret)
+    else
+      AI.new.guess
     end
   end
 end
 
 def game_start
+  puts "Enter 1 to be the Code Maker and have the computer guess, or 2 to be
+the Code Breaker and have the computer make the code."
   begin
-    choice = gets
+    choice = gets.chomp
     unless ("1".."2") === choice; raise; end
     current_game = State.new(choice)
   rescue
@@ -111,9 +130,7 @@ def game_start
     retry
   end
   current_game.new_code
-  while true do
-    current_game.make_guess
-  end
+  current_game.driver
 end
 
 Display.new.rules
